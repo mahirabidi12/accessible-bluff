@@ -1,9 +1,11 @@
-export const partitionCards = (cardset, roomCapacity) => {
+ 
+ 
+ export const partitionCards = (cardset, roomCapacity) => {
   const totalCards = cardset.length;
   const cardsPerPlayer = Math.floor(totalCards / roomCapacity);
-  const partitionedCards = [];
+  const partitionedCards = []; 
 
-  for (let i = 0; i < roomCapacity; i++) {
+   for(let i = 0; i < roomCapacity; i++) {
     const start = i * cardsPerPlayer;
     const end = (i + 1) * cardsPerPlayer;
     partitionedCards.push(cardset.slice(start, end));

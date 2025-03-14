@@ -28,4 +28,4 @@ export class Card {
 
 export function freshDeck() {
   return SUITS.flatMap(suit => VALUES.map(value => new Card(suit, value)));
-}
+} 
