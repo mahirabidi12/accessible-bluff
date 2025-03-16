@@ -1,10 +1,10 @@
-
 const SUITS = ["♠", "♣", "♥", "♦"];
 const VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
 export class Deck {
   constructor(cards = freshDeck()) {
     this.cards = cards;
+    this.playedCards = [];
   }
 
   get numberOfCards() {
@@ -17,6 +17,11 @@ export class Deck {
       [this.cards[newIndex], this.cards[i]] = [this.cards[i], this.cards[newIndex]];
     }
   }
+
+  trackCardPlay(card) {
+    this.playedCards.push(card);
+    console.log(`Card played: ${card.value} of ${card.suit}`);
+  }
 }
 
 export class Card {
@@ -28,4 +33,4 @@ export class Card {
 
 export function freshDeck() {
   return SUITS.flatMap(suit => VALUES.map(value => new Card(suit, value)));
-} 
+}
