@@ -1,21 +1,11 @@
-// strategies/hard.js
 const hardStrategy = {
-    makeMove: (gameState) => {
-      const { previousMoves, possibleMoves, opponentBluffPatterns } = gameState;
-  
-      // Identify bluff patterns and counter them
-      const counterMove = opponentBluffPatterns.find((pattern) =>
-        possibleMoves.includes(pattern.counterMove)
-      );
-  
-      if (counterMove) {
-        return counterMove.counterMove;
-      }
-  
-      // If no counter-move is found, use the safest option
-      return possibleMoves[0];
-    },
-  };
-  
-  export default hardStrategy;
-  
+  makeMove: (gameState, personality, memory) => {
+    if (Math.random() < personality.bluffFrequency) {
+      return gameState.possibleMoves[Math.floor(Math.random() * gameState.possibleMoves.length)];
+    }
+    const mostCommonMove = Object.entries(memory.bluffHistory).sort((a, b) => b[1] - a[1])[0];
+    return mostCommonMove ? mostCommonMove[0] : gameState.previousMoves[0] || gameState.possibleMoves[0];
+  },
+};
+
+export default hardStrategy;

@@ -1,30 +1,31 @@
-import { easyStrategy } from './strategies/easy.js';
-import { mediumStrategy } from './strategies/medium.js';
-import { hardStrategy } from './strategies/hard.js';
+import easyStrategy from './strategies/easy.js';
+import mediumStrategy from './strategies/medium.js';
+import hardStrategy from './strategies/hard.js';
+import { getPersonality } from './personalities.js';
+
+const strategies = { easy: easyStrategy, medium: mediumStrategy, hard: hardStrategy };
 
 class AIBot {
-  constructor(difficulty = 'medium') {
-    this.setDifficulty(difficulty);
+  constructor(difficulty = 'medium', personalityType = 'balanced') {
+    this.difficulty = difficulty;
+    this.strategy = strategies[difficulty] || strategies.medium;
+    this.personality = getPersonality(personalityType);
+    this.memory = { previousMoves: [], bluffHistory: {} };
   }
 
-  setDifficulty(difficulty) {
-    switch (difficulty) {
-      case 'easy':
-        this.strategy = easyStrategy;
-        break;
-      case 'medium':
-        this.strategy = mediumStrategy;
-        break;
-      case 'hard':
-        this.strategy = hardStrategy;
-        break;
-      default:
-        throw new Error('Invalid difficulty level');
-    }
+  analyzeGameState(gameState) {
+    const lastMove = gameState.previousMoves[gameState.previousMoves.length - 1];
+    if (!this.memory.bluffHistory[lastMove]) this.memory.bluffHistory[lastMove] = 0;
+    this.memory.bluffHistory[lastMove] += 1;
   }
 
   makeMove(gameState) {
-    return this.strategy(gameState);
+    this.analyzeGameState(gameState);
+    return this.strategy.makeMove(gameState, this.personality, this.memory);
+  }
+
+  challengeBluff(gameState) {
+    return this.personality.challengeBluff(gameState, this.memory);
   }
 }
 

@@ -1,23 +1,10 @@
-// strategies/medium.js
 const mediumStrategy = {
-    makeMove: (gameState) => {
-      const { previousMoves, possibleMoves } = gameState;
-  
-      // Analyze the most frequent moves and bluff patterns
-      const mostCommonMove = previousMoves.length 
-        ? previousMoves.reduce((acc, move) => {
-            acc[move] = (acc[move] || 0) + 1;
-            return acc;
-          }, {})
-        : {};
-  
-      const bestMove = Object.keys(mostCommonMove).reduce((a, b) => 
-        mostCommonMove[a] > mostCommonMove[b] ? a : b, null
-      );
-  
-      return possibleMoves.includes(bestMove) ? bestMove : possibleMoves[0];
-    },
-  };
-  
-  export default mediumStrategy;
-  
+  makeMove: (gameState, personality, memory) => {
+    if (Math.random() < personality.bluffFrequency) {
+      return gameState.possibleMoves[Math.floor(Math.random() * gameState.possibleMoves.length)];
+    }
+    return gameState.previousMoves[gameState.previousMoves.length - 1] || gameState.possibleMoves[0];
+  },
+};
+
+export default mediumStrategy;

@@ -1,15 +1,11 @@
-import AIBot from '../aiBot/aiBot.js'; // Adjust the path based on your structure
+import AIBot from './aiBot/aiBot.js';
 
-const bot = new AIBot('medium'); // Choose difficulty: 'easy', 'medium', or 'hard'
+const bot = new AIBot('hard', 'aggressive');
 
 const gameState = {
   previousMoves: ['queen', 'jack', 'king'],
   possibleMoves: ['queen', 'ace', 'king'],
-  opponentBluffPatterns: [
-    { pattern: 'queen', counterMove: 'ace' },
-    { pattern: 'king', counterMove: 'jack' }
-  ],
 };
 
-const move = bot.makeMove(gameState);
-console.log('AI Move:', move);
+console.log('AI Move:', bot.makeMove(gameState));
+console.log('Challenge Bluff Decision:', bot.challengeBluff(gameState));
