@@ -13,36 +13,32 @@
 
 <body>
 
-  <!-- Start: main -->
   <div class="container-fluid py-3" role="application">
-    <!-- Start: players container -->
-    <div class="playersContainer col-12 px-4" id="player-container" role="application" tabindex="0"> </div>
-    <!-- End: players container -->
-    <!-- Start: playing cards container -->
+    <div class="playersContainer col-12 px-4" id="player-container" role="application" tabindex="0"></div>
+
+    <div id="ai-hint-box" class="alert alert-info text-center" style="display: none;">
+      AI Hint: <span id="ai-hint-text"></span>
+    </div>
+
     <div class="col-12 cardsContainer" id="card-container" role="application" tabindex="0"></div>
 
-    <div class="col-12 buttonContainer"> 
+    <div class="col-12 buttonContainer">
       <button id="place-btn" class="col-4 button" type="button" onclick="placeCards()" disabled="true" tabindex="0">Place</button>
       <button id="raise-btn" class="col-4 button" type="button" onclick="raisecards()" disabled="true">Raise</button>
-      <button id="pass-btn" class="col-4 button" type="button"  onclick="passaction()" disabled="true">Pass</button>
+      <button id="pass-btn" class="col-4 button" type="button" onclick="passaction()" disabled="true">Pass</button>
     </div>
 
-    <div class="col-12 cardsContainer" id="container_played" role="application" tabindex="0"> </div>
+    <div class="col-12 cardsContainer" id="container_played" role="application" tabindex="0"></div>
 
     <div class="col-12">
-        <div class="split left" id="notification-area" ></div>
-        <div class="split right">
-          Keyboard shortcuts :&emsp;J-Place&emsp;F-Raise&emsp;;-Pass&emsp;.-Say-selected-cards<br>
-          [-Select-first-card-in-deck&emsp;]-Select-last-card-in-deck&emsp;Z-Say-last-game &emsp;0-Say-all-cards-as-sets <br>
-           <div class="col-12 col-sm-5 p-4" id="rise-spinner-area" ></div>
-        </div>
+      <div class="split left" id="notification-area"></div>
+      <div class="split right">
+        Keyboard shortcuts :&emsp;J-Place&emsp;F-Raise&emsp;;-Pass&emsp;.-Say-selected-cards<br>
+        [-Select-first-card-in-deck&emsp;]-Select-last-card-in-deck&emsp;Z-Say-last-game &emsp;0-Say-all-cards-as-sets <br>
+        <div class="col-12 col-sm-5 p-4" id="rise-spinner-area"></div>
+      </div>
     </div>
-   
-
-
   </div><!-- End: main -->
-
-
 
   <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
@@ -54,13 +50,25 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
     crossorigin="anonymous"></script>
-    <script src="/socket.io/socket.io.js"></script>
-     <script src="/javascript/script.js"></script>
-     
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/javascript/script.js"></script>
+
+  <script>
+    var socket = io();
+
+    socket.on('STOC-AI-HINT', function (hintMessage) {
+      var hintBox = document.getElementById('ai-hint-box');
+      var hintText = document.getElementById('ai-hint-text');
+
+      hintText.innerText = hintMessage;
+      hintBox.style.display = 'block';
+
+      setTimeout(() => {
+        hintBox.style.display = 'none';
+      }, 5000);
+    });
+  </script>
+
 </body>
 
 </html>
-
-
-
-

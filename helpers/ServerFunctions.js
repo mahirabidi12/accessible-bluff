@@ -1,38 +1,49 @@
-module.exports.delayedCode = function (cardset, roomCapacity, clients) {
-  console.log("Dealing cards...");
-  let hands = [];
-  let totalCards = cardset.length;
-  let cardsPerPlayer = Math.floor(totalCards / roomCapacity);
+module.exports = {
+  partitionCards: (cardset, roomCapacity) => {
+    const totalCards = cardset.length;
+    const cardsPerPlayer = Math.floor(totalCards / roomCapacity);
+    console.log(cardsPerPlayer);
+    const partitionedCards = [];
 
-  for (let i = 0; i < roomCapacity; i++) {
-    hands.push(cardset.slice(i * cardsPerPlayer, (i + 1) * cardsPerPlayer));
-  }
+    for (let i = 0; i < roomCapacity; i++) {
+      const start = i * cardsPerPlayer;
+      const end = (i + 1) * cardsPerPlayer;
+      partitionedCards.push(cardset.slice(start, end));
+    }
 
-  clients.forEach((client, index) => {
-    client.emit("STOC-DEAL-CARDS", hands[index]);
-  });
-};
+    return partitionedCards;
+  },
 
-module.exports.generateAIHint = function (roomId, playerId, rooms, io) {
-  const room = rooms[roomId];
-  if (!room) return;
+  delayedCode: (cardset, roomCapacity, connectedClients) => {
+    const partitionedCards = module.exports.partitionCards(cardset, roomCapacity);
 
-  if (!room.moveHistory) {
-    room.moveHistory = [];
-  }
+    connectedClients.forEach((client, index) => {
+      const subpartition = partitionedCards[index];
+      console.log(subpartition);
+      client.emit('STO1C-DRAW-CARDS', subpartition);
+    });
 
-  const lastMoves = room.moveHistory.slice(-5);
-  const bluffCounts = lastMoves.filter(move => move.bluffText !== move.playedCards[0]).length;
-  const bluffProbability = bluffCounts / lastMoves.length;
+    // Introduce AI Hint Feature
+    setTimeout(() => {
+      module.exports.generateAIHints(connectedClients);
+    }, 3000);
+  },
 
-  let hintMessage;
-  if (bluffProbability > 0.6) {
-    hintMessage = "High chance of bluffing! Consider raising!";
-  } else if (bluffProbability < 0.3) {
-    hintMessage = "Opponent is likely playing honestly.";
-  } else {
-    hintMessage = "Mixed strategies detected. Play cautiously.";
-  }
+  generateAIHints: (connectedClients) => {
+    connectedClients.forEach((client, index) => {
+      const bluffProbability = Math.floor(Math.random() * 100);
+      let hintMessage = '';
 
-  io.to(playerId).emit('STOC-AI-HINT', hintMessage);
+      if (bluffProbability > 75) {
+        hintMessage = 'High chance of bluff! Be cautious.';
+      } else if (bluffProbability > 50) {
+        hintMessage = 'Medium bluff risk detected.';
+      } else {
+        hintMessage = 'Low bluff risk, but stay sharp!';
+      }
+
+      console.log(`AI Hint for Player ${index + 1}: ${hintMessage}`);
+      client.emit('STOC-AI-HINT', hintMessage);
+    });
+  },
 };
