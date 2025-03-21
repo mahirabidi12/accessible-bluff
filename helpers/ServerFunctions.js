@@ -1,28 +1,38 @@
+module.exports.delayedCode = function (cardset, roomCapacity, clients) {
+  console.log("Dealing cards...");
+  let hands = [];
+  let totalCards = cardset.length;
+  let cardsPerPlayer = Math.floor(totalCards / roomCapacity);
 
-module.exports = {
-  partitionCards: (cardset, roomCapacity) => {
-    const totalCards = cardset.length;
-    const cardsPerPlayer = Math.floor(totalCards / roomCapacity);
-    console.log(cardsPerPlayer)
-    const partitionedCards = [];
-    for (let i = 0; i < roomCapacity; i++) {
-      const start = i * cardsPerPlayer;
-      const end = (i + 1) * cardsPerPlayer;
-      partitionedCards.push(cardset.slice(start, end));
-    }
-    return partitionedCards;
-  },
-  // Function to be executed after 2 seconds
-  delayedCode: (cardset, roomCapacity, connectedClients) => {
-    // Code to be executed after 2 seconds
-    const partitionedCards = module.exports.partitionCards(cardset, roomCapacity);
-    // Iterate over the client array and assign subpartitions to each client
-    connectedClients.forEach((client, index) => {
-      const subpartition = partitionedCards[index]; // Get the corresponding subpartition
-      console.log(subpartition);
-      // Emit the subpartition to the client
-      client.emit('STO1C-DRAW-CARDS', subpartition);
-    });
-  },
+  for (let i = 0; i < roomCapacity; i++) {
+    hands.push(cardset.slice(i * cardsPerPlayer, (i + 1) * cardsPerPlayer));
+  }
 
-}
+  clients.forEach((client, index) => {
+    client.emit("STOC-DEAL-CARDS", hands[index]);
+  });
+};
+
+module.exports.generateAIHint = function (roomId, playerId, rooms, io) {
+  const room = rooms[roomId];
+  if (!room) return;
+
+  if (!room.moveHistory) {
+    room.moveHistory = [];
+  }
+
+  const lastMoves = room.moveHistory.slice(-5);
+  const bluffCounts = lastMoves.filter(move => move.bluffText !== move.playedCards[0]).length;
+  const bluffProbability = bluffCounts / lastMoves.length;
+
+  let hintMessage;
+  if (bluffProbability > 0.6) {
+    hintMessage = "High chance of bluffing! Consider raising!";
+  } else if (bluffProbability < 0.3) {
+    hintMessage = "Opponent is likely playing honestly.";
+  } else {
+    hintMessage = "Mixed strategies detected. Play cautiously.";
+  }
+
+  io.to(playerId).emit('STOC-AI-HINT', hintMessage);
+};
